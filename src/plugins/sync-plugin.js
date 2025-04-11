@@ -519,6 +519,13 @@ export class ProsemirrorBinding {
         const pud = pluginState.permanentUserData
         if (pud) {
           pud.dss.forEach((ds) => {
+            for (const [clientId, deletes] of ds.clients.entries()) {
+              const structs = transaction.doc.store.clients.get(clientId);
+              ds.clients.set(
+                clientId,
+                deletes.filter((del) => del.clock <= structs[structs.length - 1].id.clock),
+              );
+            }
             Y.iterateDeletedStructs(transaction, ds, (_item) => {})
           })
         }
