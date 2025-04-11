@@ -520,11 +520,15 @@ export class ProsemirrorBinding {
         if (pud) {
           pud.dss.forEach((ds) => {
             for (const [clientId, deletes] of ds.clients.entries()) {
-              const structs = transaction.doc.store.clients.get(clientId);
+              const structs = transaction.doc.store.clients.get(clientId)
+              if (structs === undefined) {
+                ds.clients.set(clientId, [])
+                continue
+              }
               ds.clients.set(
                 clientId,
-                deletes.filter((del) => del.clock <= structs[structs.length - 1].id.clock),
-              );
+                deletes.filter((del) => del.clock <= structs[structs.length - 1].id.clock)
+              )
             }
             Y.iterateDeletedStructs(transaction, ds, (_item) => {})
           })
